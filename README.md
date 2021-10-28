@@ -20,3 +20,4 @@ directed acrylic graph exercise
 ## notes
 
 - didn't know if I'd have time to merge my two functions that calculate longest paths into one, held off on that for now
+- wrote one test that came up wrong, was super disappointed, then realized it was actually me counting the path on my reference that was wrong LOL
