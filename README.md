@@ -17,7 +17,8 @@ directed acrylic graph exercise
   - usually medium ones exceeded 1 second
   - usually larger ones exceeded 3 seconds
   - usually largest ones exceeded 5 seconds
-- all of these were exceeded by only a few milliseconds, so in my efforts to make this more efficient, the goal was to get tests to pass every time 
+- all of these were exceeded by quite a bit actually (not a few milliseconds), so in my efforts to make this more efficient, the goal was to get tests to pass every time lower than where they typically hit now
+- realized I needed a consistent test with consistent vertices and consistent paths, so added a tree dag factory method so I could actually measure performance impact with no randomization
 
 ## possible improvements
 
@@ -27,6 +28,7 @@ directed acrylic graph exercise
 - use java streams for larger amounts of vertices
 - consider using parallel streams for multi-threaded sorting/counting
 - some way of checking for an infinite path (currently no validation that graph is actually acyclic)
+- could maybe implement sub-graphs within graphs recursively for more readable code (dunno how this would impact performance)
 
 ## notes
 
