@@ -12,9 +12,18 @@ directed acrylic graph exercise
 - decided to figure out any two vertices first, which should solve earlier problem
 - got two vertices working, got starting vertex to any vertex working
 - need to be able to handle millions of vertices, will create random dag via factory
+- when adding tests that tested the timing it took to traverse larger dags, I got an estimate of about the time they were failing
+  - it seemd like I could rely pretty consistently on less than 100ms for smaller ones
+  - usually medium ones exceeded 1 second
+  - usually larger ones exceeded 3 seconds
+  - usually largest ones exceeded 5 seconds
+- all of these were exceeded by only a few milliseconds, so in my efforts to make this more efficient, the goal was to get tests to pass every time 
 
 ## possible improvements
 
+- make the vertices array on the class mutable, sort once after creating/adding vertices/edges
+- not creating/copying so many arraylists (possibly consider other, faster implementations as well)
+  - would arrays be faster? would have to test
 - use java streams for larger amounts of vertices
 - consider using parallel streams for multi-threaded sorting/counting
 - some way of checking for an infinite path (currently no validation that graph is actually acyclic)
