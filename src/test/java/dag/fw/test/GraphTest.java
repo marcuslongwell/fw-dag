@@ -2,6 +2,7 @@ package dag.fw.test;
 
 import dag.fw.Edge;
 import dag.fw.Graph;
+import dag.fw.GraphFactory;
 import dag.fw.Vertex;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -218,6 +219,58 @@ public class GraphTest {
         assertEquals(2, ad);
 //        assertEquals(4, jd);
 //        assertEquals(3, cEnd);
+    }
+
+    // generate 1,000 graphs of 1,000 vertices each and get their longest path to make sure
+    // that we're not encountering any unexpected issues with random graph generation
+    @Test
+    public void randomGraphsAreValid() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            Graph graph = GraphFactory.createRandom(10, 100);
+            graph.longestPath(graph.getVertex(0));
+        }
+    }
+
+    // goal: make sure a graph of 25 vertices doesn't exceed 100ms to create and traverse
+    @Test(timeout = 100)
+    public void smallTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(5, 5);
+        graph.longestPath(graph.getVertex(0));
+    }
+
+    // goal: make sure a graph of 10,000 vertices doesn't exceed 1 second to create and traverse
+    @Test(timeout = 1000)
+    public void mediumTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(100, 100);
+        graph.longestPath(graph.getVertex(0));
+    }
+
+    // goal: make sure a graph of ~500k vertices doesn't exceed 3 seconds to create and traverse
+    @Test(timeout = 3000)
+    public void largeTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(750, 750);
+        graph.longestPath(graph.getVertex(0));
+    }
+
+    // goal: make sure a graph of a million vertices doesn't exceed 5 seconds to create and traverse
+    @Test(timeout = 5000)
+    public void hugeTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(1000, 1000);
+        graph.longestPath(graph.getVertex(0));
+    }
+
+    // goal: make sure a very tall dag (lots of levels, less nodes per level) doesn't exceed 5 seconds to create and traverse
+    @Test(timeout = 5000)
+    public void hugeTallTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(10000, 100);
+        graph.longestPath(graph.getVertex(0));
+    }
+
+    // goal: make sure a very wide dag (less levels, lots of nodes per level) doesn't exceed 5 seconds to create and traverse
+    @Test(timeout = 5000)
+    public void hugeWideTraversal() throws Exception {
+        Graph graph = GraphFactory.createRandom(100, 10000);
+        graph.longestPath(graph.getVertex(0));
     }
 }
 
