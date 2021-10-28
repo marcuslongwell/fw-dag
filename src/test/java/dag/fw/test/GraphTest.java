@@ -160,4 +160,64 @@ public class GraphTest {
         assertEquals(4, jd);
         assertEquals(3, cEnd);
     }
+
+    @Test
+    public void multipleEntrySingleExit() throws Exception {
+        Graph graph = new Graph();
+
+        Vertex c = new Vertex(0, 'C');
+        Vertex a = new Vertex(1, 'A');
+        Vertex d = new Vertex(2, 'D');
+        Vertex e = new Vertex(3, 'E');
+        Vertex f = new Vertex(4, 'F');
+        Vertex h = new Vertex(5, 'H');
+        Vertex g = new Vertex(6, 'G');
+        Vertex j = new Vertex(7, 'J');
+        Vertex k = new Vertex(8, 'K');
+        Vertex b = new Vertex(9, 'B');
+
+        graph.addVertex(a);
+        graph.addVertex(c);
+        graph.addVertex(d);
+        graph.addVertex(e);
+        graph.addVertex(f);
+        graph.addVertex(g);
+        graph.addVertex(h);
+        graph.addVertex(j);
+        graph.addVertex(k);
+        graph.addVertex(b);
+
+        graph.addEdge(new Edge(c, k));
+        graph.addEdge(new Edge(a, j));
+        graph.addEdge(new Edge(b, j));
+        graph.addEdge(new Edge(j, d));
+        graph.addEdge(new Edge(j, k));
+        graph.addEdge(new Edge(k, g));
+        graph.addEdge(new Edge(d, g));
+        graph.addEdge(new Edge(g, e));
+        graph.addEdge(new Edge(g, f));
+        graph.addEdge(new Edge(e, h));
+        graph.addEdge(new Edge(h, f));
+
+        long af = graph.longestPath(a, f);
+        long aEnd = graph.longestPath(a);
+        long kg = graph.longestPath(k, g);
+        long cf = graph.longestPath(c, f);
+        long cEnd = graph.longestPath(c);
+        long bEnd = graph.longestPath(b);
+        long dEnd = graph.longestPath(d);
+        long ad = graph.longestPath(a, d);
+
+        assertEquals(6, af);
+        assertEquals(af, aEnd);
+        assertEquals(1, kg);
+        assertEquals(5, cf);
+        assertEquals(cf, cEnd);
+        assertEquals(aEnd, bEnd);
+        assertEquals(4, dEnd);
+        assertEquals(2, ad);
+//        assertEquals(4, jd);
+//        assertEquals(3, cEnd);
+    }
 }
+
