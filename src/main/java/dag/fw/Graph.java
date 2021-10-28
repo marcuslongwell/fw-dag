@@ -121,7 +121,7 @@ public class Graph {
         // works by shifting finding edge nodes, adding to list in order
         // chopping off edges at each level of depth (thus creating new edge nodes)
         // iterating until there are no more edges to chop off
-    public ArrayList<Vertex> kahnSort() {
+    public ArrayList<Vertex> kahnSort() throws Exception {
         ArrayList<Vertex> sorted = new ArrayList<>();
         ArrayList<Vertex> startingVertices = getStartingVertices();
         ArrayList<Edge> unaccountedEdges = new ArrayList<>(edges);
@@ -145,6 +145,8 @@ public class Graph {
             }
         }
 
+        if (unaccountedEdges.size() > 0) throw new Exception("Invalid DAG. Not all edges are connected to vertices.");
+
 //        setVertices(sorted);
         return sorted;
     }
@@ -155,6 +157,9 @@ public class Graph {
         // finds attached edges
         // checks to see if that edge is the shortest way to get to vertex
     public long extremePath(Vertex a, Vertex b, PathStrategy strategy) throws Exception {
+        if (vertices.size() < 2) throw new Exception("Invalid DAG. Must have at least two nodes");
+        if (edges.size() < 1) throw new Exception("Invalid DAG. Must have at least one edge");
+
         // it's likely that in a production environment, we'd want to just mutate the list on the graph
             // sorting once rather than any time we needed to update the path
         ArrayList<Vertex> sortedVertices = kahnSort();
@@ -172,13 +177,22 @@ public class Graph {
 
         if (vertexAIndex < 0) throw new Exception("Could not find vertex: " + a);
         if (vertexBIndex < 0) throw new Exception("Could not find vertex: " + b);
+        if (vertexBIndex <= vertexAIndex) throw new Exception("Vertex " + a + " has no path to vertex " + b);
+
+        // have to keep track of ancestral nodes so that we don't
+        // include nodes in the search that were sorted after our starting node
+        // but didn't come from that node
+        ArrayList<Vertex> ancestralNodes = new ArrayList<>();
+        ancestralNodes.add(a);
 
         for (int i = vertexAIndex; i < vertexBIndex; i++) {
             Vertex currVertex = sortedVertices.get(i);
+            if (!ancestralNodes.contains(currVertex)) continue;
 
             for (int j = i + 1; j < vertexBIndex + 1; j++) {
                 Vertex checkVertex = sortedVertices.get(j);
                 if (edgeExists(currVertex, checkVertex)) {
+                    ancestralNodes.add(checkVertex);
                     // the following assumes there's no weighted edges
                     // (would need to multiply by weight if that were the case)
                     if (vertexJumps[i] + shortOrLong < vertexJumps[j] || vertexJumps[j] == 0) {
@@ -188,15 +202,80 @@ public class Graph {
             }
         }
 
-        return shortOrLong * vertexJumps[vertexBIndex];
+        long highestJumps = shortOrLong * vertexJumps[vertexBIndex];
+        if (highestJumps < 1) throw new Exception("Invalid DAG. No nodes connected to " + b);
+
+        return highestJumps;
     }
+
+    // wasn't sure if we needed to find the longest path of any path
+    // or if longest path specifically from point a to b
+    // so I decided to implement a function that would do the former
+    // with more time, I would find a way to do this with a single function
+    // that is re-used by these two functions
+    public long extremePath(Vertex vertex, PathStrategy strategy) throws Exception {
+        // it's likely that in a production environment, we'd want to just mutate the list on the graph
+        // sorting once rather than any time we needed to update the path
+        ArrayList<Vertex> sortedVertices = kahnSort();
+
+        long[] vertexJumps = new long[sortedVertices.size()];
+        int shortOrLong = strategy.equals(PathStrategy.SHORTEST) ? 1 : -1;
+
+        int vertexIndex = -1;
+        for (int i = 0; i < sortedVertices.size(); i++) {
+            vertexJumps[i] = 0;
+            if (sortedVertices.get(i).equals(vertex)) vertexIndex = i;
+        }
+
+        if (vertexIndex < 0) throw new Exception("Could not find vertex: " + vertex);
+
+        // have to keep track of ancestral nodes so that we don't
+        // include nodes in the search that were sorted after our starting node
+        // but didn't come from that node
+        ArrayList<Vertex> ancestralNodes = new ArrayList<>();
+        ancestralNodes.add(vertex);
+
+        for (int i = vertexIndex; i < sortedVertices.size() - 1; i++) {
+            Vertex currVertex = sortedVertices.get(i);
+            if (!ancestralNodes.contains(currVertex)) continue;
+
+            for (int j = i + 1; j < sortedVertices.size(); j++) {
+                Vertex checkVertex = sortedVertices.get(j);
+                if (edgeExists(currVertex, checkVertex)) {
+                    ancestralNodes.add(checkVertex);
+                    // the following assumes there's no weighted edges
+                    // (would need to multiply by weight if that were the case)
+                    if (vertexJumps[i] + shortOrLong < vertexJumps[j] || vertexJumps[j] == 0) {
+                        vertexJumps[j] = vertexJumps[i] + shortOrLong;
+                    }
+                }
+            }
+        }
+
+        long highestJumps = 0;
+        for (long jump : vertexJumps) {
+            if (jump < highestJumps) highestJumps = jump;
+        }
+
+        highestJumps *= shortOrLong;
+
+        if (highestJumps < 1) throw new Exception("Invalid DAG. No nodes connected from " + vertex);
+
+        return highestJumps;
+    }
+
 
     // returns the longest path possible between two vertices a and b
     public long longestPath(Vertex a, Vertex b) throws Exception {
         return extremePath(a, b, PathStrategy.LONGEST);
     }
 
+    public long longestPath(Vertex vertex) throws Exception {
+        return extremePath(vertex, PathStrategy.LONGEST);
+    }
+
     // returns the shortest path possible between two vertices a and b
+    // had to make sure that shortest path was working before could flip to longest path
     public long shortestPath(Vertex a, Vertex b) throws Exception {
         return extremePath(a, b, PathStrategy.SHORTEST);
     }
