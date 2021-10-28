@@ -11,11 +11,13 @@ directed acrylic graph exercise
 - needed to figure out a way to be able to specify any two vertices AND still work specifying only a starting vertex
 - decided to figure out any two vertices first, which should solve earlier problem
 - got two vertices working, got starting vertex to any vertex working
+- need to be able to handle millions of vertices, will create random dag via factory
 
 ## possible improvements
 
 - use java streams for larger amounts of vertices
 - consider using parallel streams for multi-threaded sorting/counting
+- some way of checking for an infinite path (currently no validation that graph is actually acyclic)
 
 ## notes
 
