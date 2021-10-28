@@ -6,23 +6,14 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GraphFactory {
-    static long currentId = 0;
-
-    static Vertex generateVertex() {
-        Vertex vertex = new Vertex(currentId);
-        currentId++;
-        return vertex;
-    }
-
-
-    static Graph createRandom(int minLevel, int maxLevel, int minPerLevel, int maxPerLevel) throws Exception {
+    public static Graph createRandom(int minLevel, int maxLevel, int minPerLevel, int maxPerLevel) throws Exception {
         Random random = new Random();
         Graph graph = new Graph();
 
         if (minLevel < 2) throw new Exception("Minimum level must be at least 2");
-        if (minLevel >= maxLevel) throw new Exception("Minimum level must be smaller than max level");
+        if (minLevel > maxLevel) throw new Exception("Minimum level must be less than or equal to max level");
         if (minPerLevel < 1) throw new Exception("Minimum vertices per level must be at least 1");
-        if (minPerLevel >= maxPerLevel) throw new Exception("Maximum vertices must be larger than minimum vertices");
+        if (minPerLevel > maxPerLevel) throw new Exception("Maximum vertices must be greater than or equal to minimum vertices");
 
         ArrayList<Vertex> vertices = new ArrayList<>();
         ArrayList<Edge> edges = new ArrayList<>();
@@ -48,7 +39,10 @@ public class GraphFactory {
                     // for the vertices in first row, make sure every vertex has an edge coming from it
                     // if we're not in the first row, we can allow for the graph to terminate at the previous
                     // node, so we don't need to do that
-                    int prevIndex = ((i == 0) ? j : random.nextInt(0, prevVerticies.size()));
+                    int prevIndex = j;
+                    if (i == 0) {
+                        prevIndex = random.nextInt(0, prevVerticies.size());
+                    }
                     Vertex prevVertex = prevVerticies.get(prevIndex);
                     Edge edge = new Edge(prevVertex, vertex);
                     levelEdges.add(edge);
@@ -69,7 +63,11 @@ public class GraphFactory {
         return graph;
     }
 
-    static Graph createRandom() throws Exception {
+    public static Graph createRandom(int levels, int perLevel) throws Exception {
+        return createRandom(levels, levels, perLevel, perLevel);
+    }
+
+    public static Graph createRandom() throws Exception {
         return createRandom(2, 3, 1, 2);
     }
 }
