@@ -58,7 +58,7 @@ public class GraphFactory {
         graph.setVertices(vertices);
         graph.setEdges(edges);
 
-//        System.out.println("Created " + String.valueOf(vertices.size()) + " vertices with " + String.valueOf(edges.size()) + " edges");
+        System.out.println("Created " + String.valueOf(vertices.size()) + " vertices with " + String.valueOf(edges.size()) + " edges");
 
         return graph;
     }
@@ -69,5 +69,100 @@ public class GraphFactory {
 
     public static Graph createRandom() throws Exception {
         return createRandom(2, 3, 1, 2);
+    }
+
+    // creates a tree of nodes so we can test consistently-generated graph of any size with lots of edges
+    // i.e. levels of 4 would create
+    //    *
+    //   ***
+    //  *****
+    // *******
+    // where all nodes have edges to all of the nodes below them
+    public static Graph createTree(int levels) throws Exception {
+        Graph graph = new Graph();
+
+        if (levels < 2) throw new Exception("Levels must be 2 or greater");
+
+        ArrayList<Vertex> vertices = new ArrayList<>();
+        ArrayList<Edge> edges = new ArrayList<>();
+        long vertId = 0;
+
+        ArrayList<Vertex> prevVertices = new ArrayList<>();
+        for (int i = 0; i < levels; i++) {
+            ArrayList<Vertex> levelVertices = new ArrayList<>();
+
+            for (int j = 0; j < i * 2 + 1; j++) {
+                Vertex vertex = new Vertex(vertId);
+                levelVertices.add(vertex);
+                vertId++;
+
+                if (!prevVertices.isEmpty()) {
+                    for (int k = 0; k < prevVertices.size(); k++) {
+                        Edge edge = new Edge(prevVertices.get(k), vertex);
+                        edges.add(edge);
+                    }
+                }
+            }
+
+            prevVertices = levelVertices;
+            vertices.addAll(levelVertices);
+        }
+
+        graph.setVertices(vertices);
+        graph.setEdges(edges);
+
+        System.out.println("Created " + String.valueOf(vertices.size()) + " vertices with " + String.valueOf(edges.size()) + " edges");
+
+        return graph;
+    }
+
+    // creates a waterfall of nodes so we can test a graph of any size with lots of nodes and little edges
+    // i.e. levels of 4 and width of 6 would create
+    //       *
+    // *  *  *  *  *  *
+    // *  *  *  *  *  *
+    // *  *  *  *  *  *
+    // where all nodes connect only to the node directly above them (except row 1, which connects to single starting node)
+    public static Graph createWaterfall(int levels, int width) throws Exception {
+        Graph graph = new Graph();
+
+        if (levels < 2) throw new Exception("Levels must be 2 or greater");
+        if (width < 1) throw new Exception("Width must be 1 or greater");
+
+        ArrayList<Vertex> vertices = new ArrayList<>();
+        ArrayList<Edge> edges = new ArrayList<>();
+
+        Vertex firstVirtex = new Vertex(0);
+        vertices.add(firstVirtex);
+        long vertId = 1;
+
+        ArrayList<Vertex> prevVertices = new ArrayList<>();
+        for (int i = 0; i < levels - 1; i++) {
+            ArrayList<Vertex> levelVertices = new ArrayList<>();
+
+            for (int j = 0; j < width; j++) {
+                Vertex vertex = new Vertex(vertId);
+                levelVertices.add(vertex);
+                vertId++;
+
+                if (!prevVertices.isEmpty()) {
+                    Edge edge = new Edge(prevVertices.get(j), vertex);
+                    edges.add(edge);
+                } else {
+                    Edge edge = new Edge(firstVirtex, vertex);
+                    edges.add(edge);
+                }
+            }
+
+            prevVertices = levelVertices;
+            vertices.addAll(levelVertices);
+        }
+
+        graph.setVertices(vertices);
+        graph.setEdges(edges);
+
+        System.out.println("Created " + String.valueOf(vertices.size()) + " vertices with " + String.valueOf(edges.size()) + " edges");
+
+        return graph;
     }
 }
